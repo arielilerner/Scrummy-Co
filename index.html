@@ -81,7 +81,26 @@
     .hero__video {
       position: absolute; inset: 0; width: 100%; height: 100%;
       object-fit: cover; object-position: center top; z-index: 0;
+      /* Taps pass straight through, so controls can never be summoned */
+      pointer-events: none;
+      background: var(--cream);
     }
+    /* Hide every piece of native player chrome, including the big
+       iOS/Safari "start playback" button that appears when autoplay
+       is blocked by Low Power Mode or a data saver */
+    .hero__video::-webkit-media-controls,
+    .hero__video::-webkit-media-controls-enclosure,
+    .hero__video::-webkit-media-controls-panel,
+    .hero__video::-webkit-media-controls-panel-container,
+    .hero__video::-webkit-media-controls-start-playback-button,
+    .hero__video::-webkit-media-controls-play-button,
+    .hero__video::-webkit-media-controls-overlay-play-button {
+      display: none !important;
+      -webkit-appearance: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    .hero__video::-internal-media-controls-overlay-cast-button { display: none !important; }
     .hero::before {
       content: ''; position: absolute; inset: 0; z-index: 1;
       background:
@@ -387,9 +406,68 @@
 
 <!-- ═══ HERO ═══ -->
 <section class="hero">
-  <video class="hero__video" autoplay muted loop playsinline>
-    <source src="images/hero-video.mp4" type="video/mp4">
-  </video>
+  <video
+    id="hero-video"
+    class="hero__video"
+    poster="images/hero-poster.jpg"
+    autoplay
+    muted
+    loop
+    playsinline
+    webkit-playsinline
+    x5-playsinline
+    preload="auto"
+    disablepictureinpicture
+    disableremoteplayback
+    controlslist="nodownload nofullscreen noremoteplayback"
+    tabindex="-1"
+    aria-hidden="true"
+  ></video>
+  <script>
+    /* Hero background video.
+       Chooses a lighter file on small screens, then keeps nudging
+       playback until it starts. If a browser refuses outright
+       (iOS Low Power Mode, Chrome Data Saver), the poster frame
+       stays put and the section still looks intentional. */
+    (function () {
+      var v = document.getElementById('hero-video');
+      if (!v) return;
+
+      // Belt and braces: some browsers only honour these when set in JS
+      v.muted = true;
+      v.defaultMuted = true;
+      v.playsInline = true;
+      v.loop = true;
+      v.controls = false;
+
+      var small = window.matchMedia('(max-width: 700px)').matches;
+      v.src = small ? 'images/hero-720.mp4' : 'images/hero-1080.mp4';
+
+      function attempt() {
+        if (!v.paused) return;
+        var p = v.play();
+        if (p && typeof p.catch === 'function') p.catch(function () { /* blocked; poster remains */ });
+      }
+
+      attempt();
+      ['loadeddata', 'canplay', 'canplaythrough'].forEach(function (e) {
+        v.addEventListener(e, attempt);
+      });
+
+      // Fallback: the first interaction of any kind unblocks playback
+      ['touchstart', 'pointerdown', 'click', 'scroll', 'keydown'].forEach(function (e) {
+        window.addEventListener(e, attempt, { once: true, passive: true });
+      });
+
+      // Resume after returning to the tab, or after waking a phone
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) attempt();
+      });
+      v.addEventListener('pause', function () {
+        if (!document.hidden) setTimeout(attempt, 120);
+      });
+    })();
+  </script>
   <div class="hero__content">
     <div class="hero__block">
       <img src="images/Hero_tagline_crop.png" alt="We'll sort breakfast" class="hero__tagline">
@@ -475,7 +553,6 @@
 
 <!-- ═══ WHY WE'RE SCRUMMY — packaging-inspired ═══ -->
 <section class="section--why" id="why">
-
 
   <div class="why-inner">
     <div data-reveal>
