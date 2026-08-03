@@ -166,7 +166,7 @@
     .section--pancakes { background: var(--cream-pale); }
     .product-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 28px; max-width: 1100px; margin: 0 auto;
+      gap: 26px; max-width: 1280px; margin: 0 auto;
     }
     .product-card {
       background: white; border-radius: 24px; overflow: hidden;
@@ -181,10 +181,13 @@
     .product-card--vanilla { border-top: 4px solid var(--sage); }
     .product-card--carrot  { border-top: 4px solid var(--orange); }
     .product-card__img {
-      width: 100%; aspect-ratio: 4/3; object-fit: cover;
-      transition: transform 0.4s ease;
+      width: 100%;
+      /* Matches the source crop (896x650) so the full frame shows, uncropped */
+      aspect-ratio: 896 / 650;
+      object-fit: cover;
+      transition: transform 0.5s var(--ease);
     }
-    .product-card:hover .product-card__img { transform: scale(1.04); }
+    .product-card:hover .product-card__img { transform: scale(1.05); }
     .product-card__body { padding: 24px 24px 30px; }
     .product-card__name {
       font-family: 'Recoleta', 'Playfair Display', serif;
@@ -438,21 +441,21 @@
 
   <div class="product-grid">
     <div class="product-card product-card--banana" data-reveal="scale">
-      <img src="images/Banana_Portrait_v2.png" alt="Banana Oat Pancakes" class="product-card__img">
+      <img src="images/Banana_card.png" alt="Banana Oat Pancakes" class="product-card__img">
       <div class="product-card__body">
         <h3 class="product-card__name">Banana</h3>
         <p class="product-card__desc">The one that started it all. Sweet, familiar and loved by every little one. The perfect first pancake.</p>
       </div>
     </div>
     <div class="product-card product-card--vanilla" data-reveal="scale">
-      <img src="images/Apple_Portrait.png" alt="Vanilla Apple Oat Pancakes" class="product-card__img">
+      <img src="images/Apple_card.png" alt="Vanilla Apple Oat Pancakes" class="product-card__img">
       <div class="product-card__body">
         <h3 class="product-card__name">Vanilla Apple</h3>
         <p class="product-card__desc">Like a little bowl of apple crumble, but for breakfast. Cosy, warming and just sweet enough.</p>
       </div>
     </div>
     <div class="product-card product-card--carrot" data-reveal="scale">
-      <img src="images/Carrot_Cake_Portrait.png" alt="Carrot Cake Oat Pancakes" class="product-card__img">
+      <img src="images/Carrot_card.png" alt="Carrot Cake Oat Pancakes" class="product-card__img">
       <div class="product-card__body">
         <h3 class="product-card__name">Carrot Cake</h3>
         <p class="product-card__desc">All the fun of carrot cake, with a sneaky serving of veg thrown in. They'll never know, and you absolutely will.</p>
