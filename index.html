@@ -78,13 +78,28 @@
       padding: 0 var(--pad-x) calc(clamp(48px, 8vw, 100px) + 56px);
       z-index: 1;
     }
+    /* Still frame — always visible, always the fallback.
+       Because this is a plain <img>, it can never show player chrome. */
+    .hero__poster {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* The video starts fully transparent and is only revealed once
+       the 'playing' event fires. If a browser refuses to autoplay
+       (iOS Low Power Mode, Chrome Data Saver) the element stays
+       invisible — and so does its play button. */
     .hero__video {
       position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; object-position: center top; z-index: 0;
-      /* Taps pass straight through, so controls can never be summoned */
+      object-fit: cover; object-position: center top;
+      z-index: 1;
       pointer-events: none;
-      background: var(--cream);
+      opacity: 0;
+      transition: opacity 0.7s var(--ease);
     }
+    .hero__video.is-playing { opacity: 1; }
     /* Hide every piece of native player chrome, including the big
        iOS/Safari "start playback" button that appears when autoplay
        is blocked by Low Power Mode or a data saver */
@@ -102,13 +117,13 @@
     }
     .hero__video::-internal-media-controls-overlay-cast-button { display: none !important; }
     .hero::before {
-      content: ''; position: absolute; inset: 0; z-index: 1;
+      content: ''; position: absolute; inset: 0; z-index: 2;
       background:
         linear-gradient(to top,  rgba(245,237,217,0.72) 0%, rgba(245,237,217,0.4) 35%, transparent 65%),
         linear-gradient(to right, rgba(245,237,217,0.5) 0%, transparent 65%);
     }
     .hero__content {
-      position: relative; z-index: 2;
+      position: relative; z-index: 3;
       /* Flush-left stack */
       display: flex; flex-direction: column; align-items: flex-start;
       text-align: left;
@@ -406,10 +421,16 @@
 
 <!-- ═══ HERO ═══ -->
 <section class="hero">
+  <img
+    src="images/hero-poster.jpg"
+    alt=""
+    class="hero__poster"
+    aria-hidden="true"
+    fetchpriority="high"
+  >
   <video
     id="hero-video"
     class="hero__video"
-    poster="images/hero-poster.jpg"
     autoplay
     muted
     loop
@@ -425,15 +446,19 @@
   ></video>
   <script>
     /* Hero background video.
-       Chooses a lighter file on small screens, then keeps nudging
-       playback until it starts. If a browser refuses outright
-       (iOS Low Power Mode, Chrome Data Saver), the poster frame
-       stays put and the section still looks intentional. */
+
+       The video is invisible until the browser confirms it is actually
+       playing. That way, when autoplay is refused — iOS Low Power Mode
+       being the common case — the visitor simply sees the still frame,
+       with no play button, because the video element itself is
+       transparent and non-interactive.
+
+       A tap anywhere counts as a user gesture, which every browser
+       accepts, so playback begins and fades in on first interaction. */
     (function () {
       var v = document.getElementById('hero-video');
       if (!v) return;
 
-      // Belt and braces: some browsers only honour these when set in JS
       v.muted = true;
       v.defaultMuted = true;
       v.playsInline = true;
@@ -443,10 +468,17 @@
       var small = window.matchMedia('(max-width: 700px)').matches;
       v.src = small ? 'images/hero-720.mp4' : 'images/hero-1080.mp4';
 
+      // Only reveal once playback is genuinely underway
+      v.addEventListener('playing', function () {
+        v.classList.add('is-playing');
+      });
+
       function attempt() {
-        if (!v.paused) return;
+        if (!v.paused && !v.ended) return;
         var p = v.play();
-        if (p && typeof p.catch === 'function') p.catch(function () { /* blocked; poster remains */ });
+        if (p && typeof p.catch === 'function') {
+          p.catch(function () { /* refused — the still frame stays */ });
+        }
       }
 
       attempt();
@@ -454,17 +486,25 @@
         v.addEventListener(e, attempt);
       });
 
-      // Fallback: the first interaction of any kind unblocks playback
-      ['touchstart', 'pointerdown', 'click', 'scroll', 'keydown'].forEach(function (e) {
-        window.addEventListener(e, attempt, { once: true, passive: true });
+      /* Any real user gesture satisfies every autoplay policy,
+         including Low Power Mode. Listeners stay attached until
+         playback succeeds, then remove themselves. */
+      var gestures = ['touchend', 'pointerup', 'click', 'keydown', 'scroll'];
+      function onGesture() {
+        attempt();
+        if (!v.paused) {
+          gestures.forEach(function (e) {
+            window.removeEventListener(e, onGesture);
+          });
+        }
+      }
+      gestures.forEach(function (e) {
+        window.addEventListener(e, onGesture, { passive: true });
       });
 
-      // Resume after returning to the tab, or after waking a phone
+      // Resume after a tab switch or phone wake
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) attempt();
-      });
-      v.addEventListener('pause', function () {
-        if (!document.hidden) setTimeout(attempt, 120);
       });
     })();
   </script>
