@@ -99,17 +99,21 @@
       from { opacity: 0; transform: translateY(28px); }
       to   { opacity: 1; transform: none; }
     }
+    /* Block matches the tagline width so the subtitle can centre against it */
+    .hero__block { width: min(660px, 90vw); }
     .hero__tagline {
       /* Image is pre-trimmed of transparent padding, so it sits flush left */
-      width: min(660px, 90vw);
+      width: 100%;
       height: auto;
       margin: 0 0 14px 0;
     }
     .hero__sub {
       font-size: clamp(19px, 2vw, 24px);
       font-weight: 600; color: var(--navy);
-      line-height: 1.45; max-width: 580px;
+      line-height: 1.45;
       margin: 0;
+      /* Centred within the tagline's width */
+      text-align: center;
     }
 
     /* ─── WAVY MARQUEE (overlaps hero) ─── */
@@ -159,7 +163,7 @@
     }
 
     /* ─── MEET THE PANCAKES ─── */
-    .section--pancakes { background: var(--cream); }
+    .section--pancakes { background: var(--cream-pale); }
     .product-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 28px; max-width: 1100px; margin: 0 auto;
@@ -199,16 +203,12 @@
       overflow: hidden;
       padding: var(--section-y) var(--pad-x);
     }
-    /* Decorative organic blobs, echoing the pack corners */
-    .why-blobs {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      z-index: 0; pointer-events: none;
-    }
     .why-inner { position: relative; z-index: 1; }
 
     .why-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 26px; max-width: 1120px; margin: 0 auto;
+      align-items: stretch;
     }
     /* Panel styled directly on the pack's outlined ingredients box */
     .why-panel {
@@ -219,13 +219,14 @@
       padding: 40px 30px 36px;
       text-align: center;
       position: relative;
+      /* Flex column + stretch grid = all three cards identical height */
+      display: flex;
+      flex-direction: column;
       transition: transform 0.35s var(--ease);
     }
     .why-panel:hover { transform: translateY(-6px) rotate(-0.6deg); }
-    .why-panel:nth-child(2) {
-      margin-top: 26px;
-      border-radius: 32px 46px 30px 44px;
-    }
+    /* Varied radii keep the hand-drawn feel; heights stay identical */
+    .why-panel:nth-child(2) { border-radius: 32px 46px 30px 44px; }
     .why-panel:nth-child(2):hover { transform: translateY(-6px) rotate(0.6deg); }
     .why-panel:nth-child(3) { border-radius: 46px 34px 42px 28px; }
 
@@ -251,10 +252,8 @@
 
     .why-panel__text {
       font-size: 17px; line-height: 1.7; color: var(--navy); opacity: 0.82;
+      margin: 0;
     }
-
-    /* Small on-pack motifs: dashes + daisy */
-    .motif { position: absolute; z-index: 0; pointer-events: none; }
 
     /* ─── OUR STORY ─── */
     .section--story { background: var(--cream-pale); text-align: center; }
@@ -364,8 +363,10 @@
     <source src="images/hero-video.mp4" type="video/mp4">
   </video>
   <div class="hero__content">
-    <img src="images/Hero_tagline_crop.png" alt="We'll sort breakfast" class="hero__tagline">
-    <p class="hero__sub">All the love, none of the washing up. Soft, oaty pancakes made with real ingredients and absolutely zero faff.</p>
+    <div class="hero__block">
+      <img src="images/Hero_tagline_crop.png" alt="We'll sort breakfast" class="hero__tagline">
+      <p class="hero__sub">All the love, none of the washing up. Soft, oaty pancakes made with real ingredients and absolutely zero faff.</p>
+    </div>
   </div>
 </section>
 
@@ -398,7 +399,7 @@
   </div>
 
   <svg class="marquee-wave-bottom" viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0,28 C240,0 480,56 720,28 C960,0 1200,48 1440,28 L1440,60 L0,60 Z" fill="#F5EDD9"/>
+    <path d="M0,28 C240,0 480,56 720,28 C960,0 1200,48 1440,28 L1440,60 L0,60 Z" fill="#FDF8EC"/>
   </svg>
 </div>
 
@@ -436,35 +437,17 @@
 </section>
 
 
+<!-- Wave: pale cream → cream -->
+<div class="wave" style="background:var(--cream-pale);">
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C360,60 720,0 1080,30 C1260,46 1380,14 1440,30 L1440,62 L0,62 Z" fill="#F5EDD9"/>
+  </svg>
+</div>
+
+
 <!-- ═══ WHY WE'RE SCRUMMY — packaging-inspired ═══ -->
 <section class="section--why" id="why">
 
-  <!-- Organic colour blobs echoing the pack corners -->
-  <svg class="why-blobs" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <!-- top-left sage blob -->
-    <path d="M-60,120 C60,40 210,60 260,150 C310,240 240,330 130,350 C20,370 -90,300 -100,220 C-110,140 -80,150 -60,120 Z" fill="#8FAE8B" opacity="0.30"/>
-    <!-- top-right terracotta blob -->
-    <path d="M1240,-40 C1360,-70 1490,20 1500,130 C1510,240 1420,300 1320,280 C1220,260 1170,170 1190,80 C1210,-10 1200,-20 1240,-40 Z" fill="#D9724A" opacity="0.28"/>
-    <!-- bottom-left blue-grey blob -->
-    <path d="M-40,700 C90,650 240,700 280,800 C320,900 230,980 110,970 C-10,960 -100,880 -90,790 C-80,700 -70,715 -40,700 Z" fill="#A8BDD4" opacity="0.34"/>
-    <!-- bottom-right yellow blob -->
-    <path d="M1230,640 C1360,600 1500,680 1510,790 C1520,900 1420,960 1310,945 C1200,930 1150,840 1175,745 C1200,650 1195,655 1230,640 Z" fill="#F5B93A" opacity="0.26"/>
-    <!-- small mid daisy motif -->
-    <g opacity="0.5" transform="translate(120, 470)">
-      <circle cx="0"   cy="-16" r="9" fill="#D9724A"/>
-      <circle cx="15"  cy="-5"  r="9" fill="#D9724A"/>
-      <circle cx="9"   cy="13"  r="9" fill="#D9724A"/>
-      <circle cx="-9"  cy="13"  r="9" fill="#D9724A"/>
-      <circle cx="-15" cy="-5"  r="9" fill="#D9724A"/>
-      <circle cx="0"   cy="0"   r="6" fill="#F5EDD9"/>
-    </g>
-    <!-- dashed marks motif, as on-pack -->
-    <g stroke="#1C2B52" stroke-width="7" stroke-linecap="round" opacity="0.3">
-      <line x1="1330" y1="420" x2="1330" y2="452"/>
-      <line x1="1358" y1="410" x2="1358" y2="442"/>
-      <line x1="1386" y1="424" x2="1386" y2="456"/>
-    </g>
-  </svg>
 
   <div class="why-inner">
     <div data-reveal>
@@ -477,7 +460,7 @@
       <div class="why-panel" data-reveal="scale">
         <h3 class="why-panel__title">Ready in Moments</h3>
         <div class="why-panel__rule"><span class="why-panel__heart">♥</span></div>
-        <p class="why-panel__text">Always in the freezer, on their plate in 40 seconds flat. For tiny people with huge appetites and a school run that waits for no one.</p>
+        <p class="why-panel__text">From the freezer to their plate in under a minute. For tiny people with huge appetites and a nursery run that waits for no one.</p>
       </div>
 
       <div class="why-panel" data-reveal="scale">
@@ -511,9 +494,9 @@
     <h2 class="display-h section-title" style="margin-bottom:34px;">Our story</h2>
   </div>
   <div class="story-body" data-reveal>
-    <p>Mornings with a toddler are beautiful, chaotic, and absolutely covered in porridge. You want to feed them something nutritious, but you're also half-dressed, late, and running on very little sleep.</p>
+    <p>Mornings with a toddler are chaotic. You want to feed them something nutritious, but you're also half-dressed, late, and running on very little sleep.</p>
     <p>Scrummy &amp; Co. started with one knackered mum's simple belief: that the healthiest option should also be the easiest one. Our oat pancakes are made from ingredients you'd actually recognise: oats, real fruit, eggs, whole wheat flour. No additives, no sweeteners, no compromise.</p>
-    <p>They're soft, fluffy, and on their plate in 40 seconds. Little ones can feed themselves, the floor stays clean, and you might even get to drink your coffee hot.</p>
+    <p>They're soft, fluffy, and on their plate in under a minute. Little ones can feed themselves, the floor stays clean, and you might even get to drink your coffee hot.</p>
   </div>
 </section>
 
