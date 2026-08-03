@@ -298,6 +298,31 @@
       transition: background 0.2s, transform 0.15s;
     }
     .signup__btn:hover { background: #152248; transform: translateY(-1px); }
+    .signup__btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+    /* Success state, styled to match the form card it replaces */
+    .signup__thanks {
+      background: var(--cream); border-radius: 18px;
+      padding: 34px 24px; max-width: 500px; margin: 0 auto;
+      text-align: center;
+      animation: thanksIn 0.5s var(--ease) both;
+    }
+    @keyframes thanksIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+    .signup__thanks-title {
+      font-family: 'Recoleta', 'Playfair Display', serif;
+      font-size: 30px; font-weight: 800; color: var(--orange); margin-bottom: 6px;
+    }
+    .signup__thanks-text { font-size: 17px; font-weight: 600; color: var(--navy); opacity: 0.72; }
+
+    .signup__error {
+      font-size: 15px; font-weight: 700; color: var(--cream);
+      background: rgba(28,43,82,0.35); border-radius: 10px;
+      padding: 10px 14px; margin-top: 14px;
+      max-width: 500px; margin-left: auto; margin-right: auto;
+    }
 
     /* ─── FOOTER ─── */
     footer {
@@ -514,10 +539,36 @@
   <div data-reveal>
     <h2 class="display-h signup__heading">Join the Scrummy family.</h2>
     <p class="signup__sub">No nonsense, just the occasional headline on new flavours, products and stockists.</p>
-    <div class="signup__card">
+    <form
+      class="signup__card"
+      name="waitlist"
+      method="POST"
+      data-netlify="true"
+      data-netlify-honeypot="bot-field"
+      id="waitlist-form"
+    >
+      <!-- Netlify needs this hidden field to identify the form -->
+      <input type="hidden" name="form-name" value="waitlist">
+      <!-- Spam trap: real people never fill this in -->
+      <p hidden><label>Don't fill this in: <input name="bot-field"></label></p>
+
       <label class="signup__label" for="email-input">Email Address *</label>
-      <input id="email-input" type="email" class="signup__input" placeholder="your@email.com" aria-label="Email address">
-      <button class="signup__btn" type="button">I'm in ♥</button>
+      <input
+        id="email-input"
+        type="email"
+        name="email"
+        class="signup__input"
+        placeholder="your@email.com"
+        aria-label="Email address"
+        required
+      >
+      <button class="signup__btn" type="submit">I'm in ♥</button>
+    </form>
+
+    <!-- Shown after a successful signup -->
+    <div class="signup__thanks" id="signup-thanks" hidden>
+      <p class="signup__thanks-title">You're in ♥</p>
+      <p class="signup__thanks-text">We'll be in touch the moment there's news.</p>
     </div>
   </div>
 </section>
@@ -561,6 +612,46 @@
   }, { threshold: 0.07, rootMargin: '0px 0px -40px 0px' });
 
   document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+
+  /* ── Waitlist signup → Netlify Forms ──
+     Submits in the background so the visitor stays on the page.
+     If JavaScript is unavailable the form still posts normally
+     and Netlify shows its own confirmation page. */
+  const form   = document.getElementById('waitlist-form');
+  const thanks = document.getElementById('signup-thanks');
+
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const button = form.querySelector('.signup__btn');
+      button.disabled = true;
+      button.textContent = 'Signing you up…';
+
+      // Clear any previous error
+      const oldError = document.querySelector('.signup__error');
+      if (oldError) oldError.remove();
+
+      try {
+        await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form)).toString()
+        });
+
+        form.hidden = true;
+        thanks.hidden = false;
+      } catch (err) {
+        button.disabled = false;
+        button.textContent = "I'm in ♥";
+        const error = document.createElement('p');
+        error.className = 'signup__error';
+        error.textContent = "That didn't go through. Please try again.";
+        form.insertAdjacentElement('afterend', error);
+      }
+    });
+  }
 </script>
 
 </body>
