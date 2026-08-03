@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrummy &amp; Co. — We'll Sort Breakfast</title>
+  <meta name="description" content="Soft, oaty pancakes made with real ingredients and absolutely zero faff. Ready in 40 seconds.">
+
+  <!-- Recoleta (display) via CDN + Quicksand (body) from Google -->
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/recoleta">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── TOKENS ─── */
+    :root {
+      --orange:      #C4461A;
+      --cream:       #F5EDD9;
+      --navy:        #1C2B52;
+      --yellow:      #F5B93A;
+      --sage:        #6F9672;
+      --pad-x:       clamp(20px, 6vw, 90px);
+      --section-y:   clamp(72px, 8vw, 112px);
+      --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--navy);
+      font-family: 'Quicksand', sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px var(--pad-x);
+      background: rgba(245,237,217,0.93);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(196,70,26,0.1);
+    }
+    .nav__logo { height: 44px; width: auto; }
+    .nav__links { display: flex; gap: 36px; }
+    .nav__links a {
+      font-size: 15px; font-weight: 700; color: var(--navy);
+      text-decoration: none; opacity: 0.65; transition: opacity 0.2s;
+    }
+    .nav__links a:hover, .nav__links a.active {
+      opacity: 1; text-decoration: underline; text-underline-offset: 4px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 560px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      /* Extra bottom padding so the wavy marquee can overlap into this space */
+      padding: 0 var(--pad-x) calc(clamp(48px, 8vw, 100px) + 52px);
+      z-index: 1;
+    }
+    .hero__video {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      z-index: 0;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top,  rgba(245,237,217,0.72) 0%, rgba(245,237,217,0.4) 35%, transparent 65%),
+        linear-gradient(to right, rgba(245,237,217,0.5) 0%, transparent 65%);
+      z-index: 1;
+    }
+    .hero__content {
+      position: relative;
+      z-index: 2;
+      /* Fade + rise on page load */
+      animation: heroLoad 0.9s var(--ease-out) 0.2s both;
+    }
+    @keyframes heroLoad {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .hero__tagline {
+      /* Larger than before */
+      width: min(640px, 88vw);
+      height: auto;
+      margin-bottom: 22px;
+    }
+    .hero__sub {
+      font-size: clamp(18px, 2vw, 23px);
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.5;
+      max-width: 560px;
+    }
+
+    /* ─── WAVY MARQUEE — overlaps the hero bottom ─── */
+    .marquee-section {
+      position: relative;
+      z-index: 10;
+      /* Pull up into hero so the wave overlaps the video */
+      margin-top: -52px;
+    }
+    /* Top wave: transparent container, navy fill — hero video shows through the cutout */
+    .marquee-wave-top {
+      display: block;
+      width: 100%;
+      margin-bottom: -1px;
+    }
+    /* Navy content band */
+    .marquee-inner {
+      background: var(--navy);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 14px 0;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: ticker 32s linear infinite;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    .marquee-item {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--cream);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0 32px;
+    }
+    .marquee-item__star { color: var(--yellow); margin: 0 4px; }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    /* Bottom wave out of navy band */
+    .marquee-wave-bottom {
+      display: block;
+      width: 100%;
+      margin-top: -1px;
+      background: var(--navy);
+    }
+
+    /* ─── SHARED SECTION HEADER ─── */
+    .section { padding: var(--section-y) var(--pad-x); }
+    /* All three section headers: same rendered height */
+    .section-hdr {
+      display: block;
+      /* Fixed height makes letter sizes consistent across all headers */
+      height: clamp(56px, 7vw, 82px);
+      width: auto;
+      margin: 0 auto;
+      /* No mix-blend-mode needed — images have transparent backgrounds */
+    }
+    .section-hdr--center { display: block; margin: 0 auto; }
+    .section-sub {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--navy);
+      opacity: 0.6;
+      margin-top: 12px;
+      margin-bottom: 52px;
+    }
+
+    /* ─── WAVE UTILITY ─── */
+    .wave { display: block; width: 100%; overflow: hidden; line-height: 0; margin-bottom: -1px; }
+    .wave svg { display: block; width: 100%; }
+
+    /* ─── MEET THE PANCAKES ─── */
+    .section--pancakes { background: var(--cream); }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .product-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(30,43,82,0.06);
+      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+    }
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 18px 52px rgba(30,43,82,0.13);
+    }
+    .product-card--banana  { border-top: 4px solid #6B9EC7; }
+    .product-card--vanilla { border-top: 4px solid var(--sage); }
+    .product-card--carrot  { border-top: 4px solid var(--orange); }
+    .product-card__img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .product-card:hover .product-card__img { transform: scale(1.04); }
+    .product-card__body { padding: 22px 22px 28px; }
+    .product-card__name {
+      font-family: 'Recoleta', 'Playfair Display', serif;
+      font-size: 26px; font-weight: 700; color: var(--orange);
+      margin-bottom: 8px;
+    }
+    .product-card__desc {
+      font-size: 15px; line-height: 1.6; color: var(--navy); opacity: 0.68;
+    }
+
+    /* ─── WHY WE'RE SCRUMMY ─── */
+    .section--why {
+      background: var(--navy);
+      background-image: radial-gradient(circle, rgba(245,237,217,0.06) 1px, transparent 1px);
+      background-size: 26px 26px;
+      padding-top: var(--section-y);
+      padding-bottom: var(--section-y);
+      padding-left: var(--pad-x);
+      padding-right: var(--pad-x);
+      text-align: center;
+    }
+    /* Header image renders orange text directly on dark navy — looks great with transparent PNG */
+    .why-hdr-wrap { margin-bottom: 56px; }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    /* ── BLOB CARDS ── */
+    .why-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      padding: 60px 36px;
+    }
+    /* Organic blob SVG behind the text */
+    .why-card__blob {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      animation: blobPulse 9s ease-in-out infinite;
+    }
+    .why-card:nth-child(2) .why-card__blob { animation-delay: -3s; }
+    .why-card:nth-child(3) .why-card__blob { animation-delay: -6s; }
+    @keyframes blobPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50%       { transform: scale(1.04) rotate(1deg); }
+    }
+    .why-card__content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 280px;
+    }
+    .why-card__title {
+      font-family: 'Recoleta', 'Playfair Display', serif;
+      font-size: 22px; font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 12px;
+    }
+    .why-card__text {
+      font-size: 15px; line-height: 1.7; color: var(--navy); opacity: 0.85;
+    }
+    /* Stagger the middle card down for an organic layout */
+    .why-card:nth-child(2) { margin-top: 28px; }
+
+    /* ─── OUR STORY ─── */
+    .section--story { background: var(--cream); text-align: center; }
+    .story-hdr { margin-bottom: 32px; }
+    .story-body {
+      max-width: 820px; margin: 0 auto;
+    }
+    .story-body p {
+      font-size: 17px; line-height: 1.9; color: var(--navy); opacity: 0.82; margin-bottom: 20px;
+    }
+    .story-body p:last-child { margin-bottom: 0; }
+
+    /* ─── SIGNUP ─── */
+    .section--signup {
+      background: var(--orange); text-align: center;
+      padding: clamp(64px, 8vw, 100px) var(--pad-x);
+    }
+    .signup__heading {
+      font-family: 'Recoleta', 'Playfair Display', serif;
+      font-size: clamp(38px, 5.5vw, 68px);
+      font-weight: 800; color: var(--cream);
+      line-height: 1.1; margin-bottom: 16px;
+    }
+    .signup__sub {
+      font-size: 17px; font-weight: 600;
+      color: var(--cream); opacity: 0.88; margin-bottom: 40px;
+    }
+    .signup__card {
+      background: var(--cream); border-radius: 18px;
+      padding: 20px 20px 16px;
+      max-width: 480px; margin: 0 auto; text-align: left;
+    }
+    .signup__label {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+      color: var(--navy); opacity: 0.5; display: block;
+      margin-bottom: 4px; padding: 0 4px;
+    }
+    .signup__input {
+      width: 100%; padding: 10px 16px;
+      font-family: 'Quicksand', sans-serif; font-size: 16px; font-weight: 500;
+      color: var(--navy); background: transparent; border: none; outline: none;
+      margin-bottom: 12px;
+    }
+    .signup__input::placeholder { color: rgba(30,43,82,0.38); }
+    .signup__btn {
+      width: 100%; padding: 14px; background: var(--navy); color: var(--cream);
+      border: none; border-radius: 12px;
+      font-family: 'Quicksand', sans-serif; font-size: 16px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.03em;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .signup__btn:hover { background: #152248; transform: translateY(-1px); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--navy); color: white;
+      padding: 36px var(--pad-x);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer__logo { height: 36px; filter: brightness(0) invert(1); opacity: 0.82; }
+    .footer__copy  { font-size: 13px; opacity: 0.4; }
+    .footer__links { display: flex; gap: 20px; }
+    .footer__links a {
+      color: white; font-size: 14px; font-weight: 600;
+      text-decoration: none; opacity: 0.55; transition: opacity 0.2s;
+    }
+    .footer__links a:hover { opacity: 1; }
+
+    /* ─── SCROLL REVEAL ─── */
+    /* Base: fade + rise */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
+    }
+    [data-reveal].in { opacity: 1; transform: none; }
+
+    /* Scale variant for cards */
+    [data-reveal="scale"] {
+      transform: translateY(20px) scale(0.97);
+    }
+    [data-reveal="scale"].in { transform: none; }
+
+    /* Left slide for story */
+    [data-reveal="left"] { transform: translateX(-24px); }
+    [data-reveal="left"].in { transform: none; }
+
+    /* Stagger delays */
+    [data-delay="1"] { transition-delay: 0.1s; }
+    [data-delay="2"] { transition-delay: 0.22s; }
+    [data-delay="3"] { transition-delay: 0.34s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .product-grid { grid-template-columns: 1fr 1fr; }
+      .why-grid     { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; }
+      .why-card:nth-child(2) { margin-top: 0; }
+    }
+    @media (max-width: 620px) {
+      .hero { padding-bottom: calc(52px + 52px); }
+      .hero__sub { font-size: 17px; }
+      .product-grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
+      .nav__links { display: none; }
+      footer { flex-direction: column; align-items: center; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" id="top">
+  <a href="#top">
+    <img src="images/Logo_tr.png" alt="Scrummy &amp; Co." class="nav__logo">
+  </a>
+  <div class="nav__links">
+    <a href="#top" class="active">Home</a>
+    <a href="#pancakes">Products</a>
+    <a href="#story">Our Story</a>
+  </div>
+</nav>
+
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <video class="hero__video" autoplay muted loop playsinline>
+    <source src="images/hero-video.mp4" type="video/mp4">
+  </video>
+  <div class="hero__content">
+    <img src="images/Hero_tagline_tr.png" alt="We'll sort breakfast" class="hero__tagline">
+    <p class="hero__sub">All the love, none of the washing up. Soft, oaty pancakes made with real ingredients and absolutely zero faff.</p>
+  </div>
+</section>
+
+
+<!-- ═══ WAVY MARQUEE — floats over hero bottom ═══ -->
+<div class="marquee-section" aria-hidden="true">
+
+  <!-- Top wave: no background on this container, so hero video shows through -->
+  <!-- The navy fill only appears where the SVG path covers -->
+  <svg class="marquee-wave-top" viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,28 C240,56 480,0 720,28 C960,56 1200,8 1440,28 L1440,56 L0,56 Z" fill="#1C2B52"/>
+  </svg>
+
+  <div class="marquee-inner">
+    <div class="marquee-track">
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <!-- Duplicate for seamless loop -->
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+      <span class="marquee-item">Coming soon to a freezer near you <span class="marquee-item__star">✦</span></span>
+    </div>
+  </div>
+
+  <!-- Bottom wave exits navy into cream -->
+  <svg class="marquee-wave-bottom" viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,28 C240,0 480,56 720,28 C960,0 1200,48 1440,28 L1440,56 L0,56 Z" fill="#F5EDD9"/>
+  </svg>
+
+</div>
+
+
+<!-- ═══ MEET THE PANCAKES ═══ -->
+<section class="section section--pancakes" id="pancakes">
+  <div data-reveal>
+    <img src="images/Header_Meet_tr.png" alt="Meet the pancakes" class="section-hdr section-hdr--center">
+    <p class="section-sub">Three flavours. Real ingredients. Ready in moments.</p>
+  </div>
+
+  <div class="product-grid">
+    <div class="product-card product-card--banana" data-reveal data-delay="1">
+      <img src="images/Banana_Portrait.png" alt="Banana Oat Pancakes" class="product-card__img">
+      <div class="product-card__body">
+        <h3 class="product-card__name">Banana</h3>
+        <p class="product-card__desc">The one that started it all. Sweet, familiar and loved by every little one. The perfect first pancake.</p>
+      </div>
+    </div>
+    <div class="product-card product-card--vanilla" data-reveal data-delay="2">
+      <img src="images/Apple_Portrait.png" alt="Vanilla Apple Oat Pancakes" class="product-card__img">
+      <div class="product-card__body">
+        <h3 class="product-card__name">Vanilla Apple</h3>
+        <p class="product-card__desc">Like a little bowl of apple crumble, but for breakfast. Cosy, warming and just sweet enough.</p>
+      </div>
+    </div>
+    <div class="product-card product-card--carrot" data-reveal data-delay="3">
+      <img src="images/Carrot_Cake_Portrait.png" alt="Carrot Cake Oat Pancakes" class="product-card__img">
+      <div class="product-card__body">
+        <h3 class="product-card__name">Carrot Cake</h3>
+        <p class="product-card__desc">All the fun of carrot cake, with a sneaky serving of veg thrown in. They'll never know, and you absolutely will.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Wave: cream → navy -->
+<div class="wave" style="background:var(--cream);">
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C360,60 720,0 1080,30 C1260,46 1380,14 1440,30 L1440,60 L0,60 Z" fill="#1C2B52"/>
+  </svg>
+</div>
+
+
+<!-- ═══ WHY WE'RE SCRUMMY ═══ -->
+<section class="section--why" id="why">
+
+  <div class="why-hdr-wrap" data-reveal>
+    <!-- Transparent PNG: orange text shows directly on dark navy — no blend tricks needed -->
+    <img src="images/Header_Why_tr.png" alt="Why we're scrummy" class="section-hdr section-hdr--center">
+  </div>
+
+  <div class="why-grid">
+
+    <!-- Card 1: warm peach blob -->
+    <div class="why-card" data-reveal="scale" data-delay="1">
+      <svg class="why-card__blob" viewBox="0 0 400 360" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <path d="M200,28 C275,6 368,48 392,130 C416,212 394,306 318,348 C242,390 128,384 68,318 C8,252 10,146 54,82 C98,18 125,50 200,28 Z" fill="#FDDFD4"/>
+      </svg>
+      <div class="why-card__content">
+        <h3 class="why-card__title">Ready In Moments</h3>
+        <p class="why-card__text">Always in the freezer, on their plate in 40 seconds flat. For tiny people with huge appetites and a school run that waits for no one.</p>
+      </div>
+    </div>
+
+    <!-- Card 2: golden yellow blob (staggered down) -->
+    <div class="why-card" data-reveal="scale" data-delay="2">
+      <svg class="why-card__blob" viewBox="0 0 400 380" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <path d="M185,22 C265,2 368,52 392,142 C416,232 390,336 308,372 C226,408 108,400 52,328 C-4,256 8,142 56,76 C104,10 105,42 185,22 Z" fill="#FFF3C8"/>
+      </svg>
+      <div class="why-card__content">
+        <h3 class="why-card__title">No Mess, No Stress</h3>
+        <p class="why-card__text">Soft and perfectly sized so little ones can feed themselves. No stains, no splashes, no gloops.</p>
+      </div>
+    </div>
+
+    <!-- Card 3: sage green blob -->
+    <div class="why-card" data-reveal="scale" data-delay="3">
+      <svg class="why-card__blob" viewBox="0 0 420 360" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <path d="M210,25 C292,5 390,52 412,140 C434,228 408,324 325,364 C242,404 118,398 58,328 C-2,258 8,144 58,80 C108,16 128,45 210,25 Z" fill="#DCE8DC"/>
+      </svg>
+      <div class="why-card__content">
+        <h3 class="why-card__title">Genuinely Healthy</h3>
+        <p class="why-card__text">Whole grains, real fruit, no nasties. Ingredients you'd put in a homemade pancake, with no additives or sneaky sweeteners.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- Wave: navy → cream -->
+<div class="wave" style="background:var(--navy);">
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C360,0 720,60 1080,30 C1260,14 1380,46 1440,30 L1440,60 L0,60 Z" fill="#F5EDD9"/>
+  </svg>
+</div>
+
+
+<!-- ═══ OUR STORY ═══ -->
+<section class="section section--story" id="story">
+  <div class="story-hdr" data-reveal>
+    <img src="images/Header_Story_tr.png" alt="Our story" class="section-hdr section-hdr--center">
+  </div>
+  <div class="story-body" data-reveal data-delay="1">
+    <p>Mornings with a toddler are beautiful, chaotic, and absolutely covered in porridge. You want to feed them something nutritious, but you're also half-dressed, late, and running on very little sleep.</p>
+    <p>Scrummy &amp; Co. started with one knackered mum's simple belief: that the healthiest option should also be the easiest one. Our oat pancakes are made from ingredients you'd actually recognise: oats, real fruit, eggs, whole wheat flour. No additives, no sweeteners, no compromise.</p>
+    <p>They're soft, fluffy, and on their plate in 40 seconds. Little ones can feed themselves, the floor stays clean, and you might even get to drink your coffee hot.</p>
+  </div>
+</section>
+
+
+<!-- Wave: cream → orange -->
+<div class="wave" style="background:var(--cream);">
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,0 C480,60 960,0 1440,44 L1440,60 L0,60 Z" fill="#C4461A"/>
+  </svg>
+</div>
+
+
+<!-- ═══ JOIN THE FAMILY ═══ -->
+<section class="section--signup" id="signup">
+  <div data-reveal>
+    <h2 class="signup__heading">Join the Scrummy family.</h2>
+    <p class="signup__sub">No nonsense, just the occasional headline on new flavours, products and stockists.</p>
+    <div class="signup__card">
+      <label class="signup__label" for="email-input">Email Address *</label>
+      <input id="email-input" type="email" class="signup__input" placeholder="your@email.com" aria-label="Email address">
+      <button class="signup__btn" type="button">I'm in ♥</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- Wave: orange → navy -->
+<div class="wave" style="background:var(--orange);">
+  <svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,24 C360,48 720,0 1080,24 C1260,36 1380,12 1440,24 L1440,48 L0,48 Z" fill="#1C2B52"/>
+  </svg>
+</div>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <img src="images/Logo_tr.png" alt="Scrummy &amp; Co." class="footer__logo">
+  <p class="footer__copy">© 2026 Scrummy &amp; Co. All rights reserved.</p>
+  <nav class="footer__links" aria-label="Footer links">
+    <a href="#">Instagram</a>
+    <a href="#">TikTok</a>
+    <a href="#">Contact</a>
+  </nav>
+</footer>
+
+
+<script>
+  // Scroll-triggered reveal — watches for [data-reveal] elements
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Respect data-delay for staggered children
+        const delay = entry.target.dataset.delay
+          ? parseFloat(entry.target.dataset.delay) * 120
+          : 0;
+        setTimeout(() => entry.target.classList.add('in'), delay);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.07, rootMargin: '0px 0px -36px 0px' });
+
+  document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
